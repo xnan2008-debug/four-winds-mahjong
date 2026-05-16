@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Four Winds Mahjong</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="game-shell">
+      <section class="table" aria-label="Traditional Chinese mahjong table">
+        <div class="topbar">
+          <div>
+            <h1>Four Winds Mahjong</h1>
+            <p id="roundText">East round</p>
+          </div>
+          <div class="wall-panel">
+            <span class="wall-icon" aria-hidden="true"></span>
+            <div>
+              <strong id="wallCount">136</strong>
+              <span>tiles left</span>
+            </div>
+          </div>
+          <div class="table-actions">
+            <button id="drawButton" class="primary-button" type="button">Draw</button>
+            <button id="winButton" class="primary-button alt" type="button">Declare Win</button>
+            <button id="passButton" class="ghost-button hidden" type="button">Pass</button>
+            <button id="newGameButton" class="ghost-button" type="button">New Game</button>
+          </div>
+        </div>
+
+        <div class="player-seat seat-north" data-seat="2">
+          <div class="seat-header">
+            <span class="wind">W</span>
+            <div>
+              <strong>Friend</strong>
+              <small>Human 2</small>
+            </div>
+          </div>
+          <div class="compact-hand" id="hand-2"></div>
+          <div class="meld-row" id="melds-2"></div>
+          <div class="discard-row" id="discards-2"></div>
+        </div>
+
+        <div class="player-seat seat-west" data-seat="3">
+          <div class="seat-header">
+            <span class="wind">N</span>
+            <div>
+              <strong>Lin</strong>
+              <small>NPC</small>
+            </div>
+          </div>
+          <div class="compact-hand vertical" id="hand-3"></div>
+          <div class="meld-row vertical-melds" id="melds-3"></div>
+          <div class="discard-row vertical-discards" id="discards-3"></div>
+        </div>
+
+        <div class="center-board">
+          <div class="call-panel hidden" id="callPanel"></div>
+          <div class="status-card">
+            <span id="turnBadge">East turn</span>
+            <h2 id="statusTitle">Ready</h2>
+            <p id="statusText">Start a new hand and take turns drawing, discarding, and calling melds.</p>
+          </div>
+          <div class="last-discard" id="lastDiscardSlot" aria-label="Last discarded tile"></div>
+        </div>
+
+        <div class="player-seat seat-east active" data-seat="0">
+          <div class="seat-header">
+            <span class="wind">E</span>
+            <div>
+              <strong>You</strong>
+              <small>Human 1</small>
+            </div>
+          </div>
+          <div class="meld-row" id="melds-0"></div>
+          <div class="discard-row" id="discards-0"></div>
+          <div class="hand-row playable" id="hand-0"></div>
+        </div>
+
+        <div class="player-seat seat-south" data-seat="1">
+          <div class="seat-header">
+            <span class="wind">S</span>
+            <div>
+              <strong>Mei</strong>
+              <small>NPC</small>
+            </div>
+          </div>
+          <div class="compact-hand vertical" id="hand-1"></div>
+          <div class="meld-row vertical-melds" id="melds-1"></div>
+          <div class="discard-row vertical-discards" id="discards-1"></div>
+        </div>
+      </section>
+
+      <aside class="side-panel">
+        <section class="room-panel">
+          <h2>Online Room</h2>
+          <div class="room-controls">
+            <button id="createRoomButton" class="primary-button" type="button">Create Room</button>
+            <input id="roomCodeInput" type="text" inputmode="latin" autocomplete="off" placeholder="Room code" />
+            <button id="joinEastButton" class="ghost-button" type="button">Join East</button>
+            <button id="joinWestButton" class="ghost-button" type="button">Join West</button>
+          </div>
+          <p id="roomStatus">Start the room server, then create a room for online play.</p>
+          <div id="roomLinks" class="room-links"></div>
+        </section>
+        <section>
+          <h2>Hand Log</h2>
+          <ol id="logList" class="log-list"></ol>
+        </section>
+        <section>
+          <h2>Rules In Play</h2>
+          <ul class="rules-list">
+            <li>Four-player Chinese mahjong with 136 tiles.</li>
+            <li>Win with four melds and a pair, or seven pairs.</li>
+            <li>Pong and kong may be called by anyone; chow by the next seat only.</li>
+            <li>Human seats are East and West, with NPCs at South and North.</li>
+          </ul>
+        </section>
+      </aside>
+    </main>
+
+    <template id="tileTemplate">
+      <button class="tile" type="button">
+        <span class="tile-rank"></span>
+        <span class="tile-name"></span>
+      </button>
+    </template>
+
+    <script src="game.js"></script>
+  </body>
+</html>

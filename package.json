@@ -1,0 +1,13 @@
+{
+  "name": "four-winds-mahjong",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A browser-based Chinese mahjong room game for two human players and two NPCs.",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check game.js && node --check server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
