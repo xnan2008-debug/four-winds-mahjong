@@ -381,12 +381,32 @@ small,
 
 .seat-west .meld-row,
 .seat-south .meld-row {
-  top: calc(50% - 58px);
+  display: grid;
+  grid-template-columns: repeat(2, 34px);
+  grid-auto-rows: 46px;
+  align-content: start;
+  width: 72px;
+  top: calc(50% - 146px);
 }
 
 .seat-west .discard-row,
 .seat-south .discard-row {
-  top: calc(50% + 58px);
+  display: grid;
+  grid-template-columns: repeat(2, 32px);
+  grid-auto-rows: 44px;
+  align-content: start;
+  width: 68px;
+  top: calc(50% - 52px);
+}
+
+.seat-west .meld-row,
+.seat-west .discard-row {
+  left: 150px;
+}
+
+.seat-south .meld-row,
+.seat-south .discard-row {
+  right: 150px;
 }
 
 .seat-west .compact-hand .tile,
@@ -398,16 +418,55 @@ small,
 }
 
 .seat-west .compact-hand .tile:not(.back) > *,
-.seat-south .compact-hand .tile:not(.back) > * {
+.seat-south .compact-hand .tile:not(.back) > *,
+.seat-west .discard-row .tile > *,
+.seat-south .discard-row .tile > *,
+.seat-west .meld-row .tile > *,
+.seat-south .meld-row .tile > * {
   transform-origin: center;
 }
 
-.seat-west .compact-hand .tile:not(.back) > * {
-  transform: rotate(90deg);
+.seat-west .compact-hand .tile:not(.back) > *,
+.seat-west .discard-row .tile > *,
+.seat-west .meld-row .tile > * {
+  transform: rotate(90deg) scale(0.74);
 }
 
-.seat-south .compact-hand .tile:not(.back) > * {
-  transform: rotate(-90deg);
+.seat-south .compact-hand .tile:not(.back) > *,
+.seat-south .discard-row .tile > *,
+.seat-south .meld-row .tile > * {
+  transform: rotate(-90deg) scale(0.74);
+}
+
+.seat-west .discard-row .tile > *,
+.seat-south .discard-row .tile > *,
+.seat-west .meld-row .tile > *,
+.seat-south .meld-row .tile > * {
+  transform: none;
+}
+
+.seat-south .discard-row .tile > *,
+.seat-south .meld-row .tile > * {
+  transform: none;
+}
+
+.seat-west .meld-row .tile,
+.seat-south .meld-row .tile {
+  width: 32px;
+  height: 44px;
+  padding: 4px 3px 6px;
+}
+
+.seat-west .discard-row .tile,
+.seat-south .discard-row .tile {
+  width: 30px;
+  height: 42px;
+  padding: 4px 2px 6px;
+}
+
+.seat-west .meld,
+.seat-south .meld {
+  display: contents;
 }
 
 .seat-west .compact-hand .tile:nth-child(-n+11) {
