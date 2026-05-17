@@ -1,6 +1,6 @@
-# Four Winds Mahjong
+# Avengers Mahjong
 
-A browser-based Chinese mahjong room game for two human players and two NPCs.
+An Avengers-themed Chinese mahjong room game for two human players and two NPCs.
 
 ## Run Locally
 

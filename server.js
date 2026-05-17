@@ -21,10 +21,10 @@ const TILE_DEFS = [
 ];
 const TILE_LOOKUP = Object.fromEntries(TILE_DEFS.map((tile) => [tile.id, tile]));
 const SEATS = [
-  { name: "You", wind: "East", human: true },
-  { name: "Mei", wind: "South", human: false },
-  { name: "Friend", wind: "West", human: true },
-  { name: "Lin", wind: "North", human: false },
+  { name: "Black Widow", wind: "East", human: true },
+  { name: "Hulk", wind: "South", human: false },
+  { name: "Captain America", wind: "West", human: true },
+  { name: "Ironman", wind: "North", human: false },
 ];
 
 function buildWall() {

@@ -31,10 +31,10 @@ const TILE_DEFS = [
 
 const TILE_LOOKUP = Object.fromEntries(TILE_DEFS.map((tile) => [tile.id, tile]));
 const SEATS = [
-  { name: "You", wind: "East", human: true },
-  { name: "Mei", wind: "South", human: false },
-  { name: "Friend", wind: "West", human: true },
-  { name: "Lin", wind: "North", human: false },
+  { name: "Black Widow", wind: "East", human: true },
+  { name: "Hulk", wind: "South", human: false },
+  { name: "Captain America", wind: "West", human: true },
+  { name: "Ironman", wind: "North", human: false },
 ];
 
 const state = {
@@ -541,11 +541,14 @@ function countPairs(hand) {
 }
 
 function render() {
-  state.players.forEach((player, index) => {
-    document.querySelector(`[data-seat="${index}"]`).classList.toggle("active", index === state.current && !state.gameOver);
-    renderHand(player, index);
-    renderMelds(player, index);
-    renderDiscards(player, index);
+  visualSeatMap().forEach((playerIndex, visualIndex) => {
+    const player = state.players[playerIndex];
+    const seat = document.querySelector(`[data-seat="${visualIndex}"]`);
+    seat.classList.toggle("active", playerIndex === state.current && !state.gameOver);
+    renderSeatHeader(player, visualIndex);
+    renderHand(player, playerIndex, visualIndex);
+    renderMelds(player, visualIndex);
+    renderDiscards(player, visualIndex);
   });
 
   els.wallCount.textContent = state.wall.length;
@@ -567,8 +570,25 @@ function render() {
   }
 }
 
-function renderHand(player, playerIndex) {
-  const container = document.querySelector(`#hand-${playerIndex}`);
+function visualSeatMap() {
+  if (!online.enabled || online.seat === 0) return [0, 1, 2, 3];
+  if (online.seat === 2) return [2, 3, 0, 1];
+  return [online.seat, (online.seat + 1) % 4, (online.seat + 2) % 4, (online.seat + 3) % 4];
+}
+
+function renderSeatHeader(player, visualIndex) {
+  const seat = document.querySelector(`[data-seat="${visualIndex}"]`);
+  seat.dataset.character = characterSlug(player.name);
+  seat.querySelector("strong").textContent = player.name;
+  seat.querySelector("small").textContent = player.human ? (player.name === "Black Widow" ? "Human 1" : "Human 2") : "NPC";
+}
+
+function characterSlug(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+function renderHand(player, playerIndex, visualIndex) {
+  const container = document.querySelector(`#hand-${visualIndex}`);
   container.innerHTML = "";
   const activeHumanIndex = state.pendingCalls.length > 0 ? state.pendingCalls[0].playerIndex : state.current;
   const hidden = online.enabled ? playerIndex !== online.seat : (!player.human || (player.human && playerIndex !== activeHumanIndex));
@@ -582,8 +602,8 @@ function renderHand(player, playerIndex) {
   });
 }
 
-function renderMelds(player, playerIndex) {
-  const container = document.querySelector(`#melds-${playerIndex}`);
+function renderMelds(player, visualIndex) {
+  const container = document.querySelector(`#melds-${visualIndex}`);
   container.innerHTML = "";
   player.melds.forEach((meld) => {
     const meldEl = document.createElement("div");
@@ -593,8 +613,8 @@ function renderMelds(player, playerIndex) {
   });
 }
 
-function renderDiscards(player, playerIndex) {
-  const container = document.querySelector(`#discards-${playerIndex}`);
+function renderDiscards(player, visualIndex) {
+  const container = document.querySelector(`#discards-${visualIndex}`);
   container.innerHTML = "";
   player.discards.slice(-18).forEach((tile) => container.append(createTile(tile, "discard")));
 }
@@ -611,10 +631,47 @@ function createTile(tileId, sizeClass = "") {
   const tile = els.tileTemplate.content.firstElementChild.cloneNode(true);
   tile.dataset.suit = def.suit;
   if (sizeClass) tile.classList.add(sizeClass);
-  tile.querySelector(".tile-rank").textContent = def.glyph;
-  tile.querySelector(".tile-name").textContent = def.rank && def.suit !== "wind" && !def.suit.startsWith("dragon") ? `${def.rank} ${def.label}` : def.label;
+  const rank = tile.querySelector(".tile-rank");
+  const name = tile.querySelector(".tile-name");
+  if (def.suit === "dot") {
+    rank.replaceWith(createDotArt(def.rank));
+    name.textContent = "";
+  } else if (def.suit === "bamboo") {
+    rank.replaceWith(createBambooArt(def.rank));
+    name.textContent = "";
+  } else if (def.suit === "character") {
+    rank.classList.add("character-mark");
+    rank.innerHTML = `<span>${def.glyph}</span><span>萬</span>`;
+    name.textContent = "";
+  } else {
+    rank.classList.add("honor-mark");
+    rank.textContent = def.glyph;
+    name.textContent = def.label;
+  }
   tile.title = tileText(tileId);
   return tile;
+}
+
+function createDotArt(rank) {
+  const art = document.createElement("span");
+  art.className = `tile-art dot-art rank-${rank}`;
+  for (let index = 0; index < rank; index += 1) {
+    const dot = document.createElement("span");
+    dot.className = "pip";
+    art.append(dot);
+  }
+  return art;
+}
+
+function createBambooArt(rank) {
+  const art = document.createElement("span");
+  art.className = `tile-art bamboo-art rank-${rank}`;
+  for (let index = 0; index < rank; index += 1) {
+    const bamboo = document.createElement("span");
+    bamboo.className = "bamboo-stick";
+    art.append(bamboo);
+  }
+  return art;
 }
 
 function createTileBack() {

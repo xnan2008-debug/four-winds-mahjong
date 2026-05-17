@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: four-winds-mahjong
+    name: avengers-mahjong
     runtime: node
     plan: free
     buildCommand: npm install
