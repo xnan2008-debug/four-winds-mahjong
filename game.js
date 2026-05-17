@@ -44,6 +44,7 @@ const state = {
   drawn: true,
   lastDiscard: null,
   pendingCalls: [],
+  callStatus: null,
   gameOver: false,
 };
 
@@ -52,7 +53,13 @@ const online = {
   room: null,
   seat: null,
   polling: null,
+  lastPendingCallKey: null,
+  lastGameOver: false,
 };
+
+function haptic(pattern = 16) {
+  if ("vibrate" in navigator) navigator.vibrate(pattern);
+}
 
 const els = {
   wallCount: document.querySelector("#wallCount"),
@@ -107,6 +114,7 @@ function startGame() {
   state.drawn = true;
   state.lastDiscard = null;
   state.pendingCalls = [];
+  state.callStatus = null;
   state.gameOver = false;
   els.logList.innerHTML = "";
   els.callPanel.classList.add("hidden");
@@ -155,10 +163,12 @@ function humanCanAct() {
 
 function drawForCurrent() {
   if (online.enabled) {
+    haptic(12);
     postAction({ type: "draw" });
     return;
   }
   if (!humanCanAct() || state.drawn) return;
+  haptic(12);
   const tile = drawTile();
   if (!tile) {
     endDraw();
@@ -174,10 +184,12 @@ function drawForCurrent() {
 
 function discardFromCurrent(tileId, tilePosition) {
   if (online.enabled) {
+    haptic(10);
     postAction({ type: "discard", tileIndex: tilePosition });
     return;
   }
   if (!humanCanAct() || !state.drawn) return;
+  haptic(10);
   discardTile(state.current, tilePosition ?? currentPlayer().hand.indexOf(tileId));
 }
 
@@ -199,6 +211,7 @@ function discardTile(playerIndex, handIndex) {
 
 function gatherCalls(tile, fromIndex) {
   state.pendingCalls = [];
+  state.callStatus = null;
   state.players.forEach((player, index) => {
     if (index === fromIndex) return;
     const options = getCallOptions(player, index, tile, fromIndex);
@@ -214,6 +227,14 @@ function gatherCalls(tile, fromIndex) {
     }
     return turnDistance(fromIndex, a.playerIndex) - turnDistance(fromIndex, b.playerIndex);
   });
+  if (state.pendingCalls.length > 0) {
+    const call = state.pendingCalls[0];
+    state.callStatus = {
+      playerIndex: call.playerIndex,
+      playerName: state.players[call.playerIndex].name,
+      options: call.options.map((option) => option.label),
+    };
+  }
 }
 
 function getCallOptions(player, playerIndex, tile, fromIndex) {
@@ -261,12 +282,18 @@ function resolveCalls() {
       return;
     }
     state.pendingCalls.shift();
+    state.callStatus = state.pendingCalls[0] ? {
+      playerIndex: state.pendingCalls[0].playerIndex,
+      playerName: state.players[state.pendingCalls[0].playerIndex].name,
+      options: state.pendingCalls[0].options.map((option) => option.label),
+    } : null;
     if (state.pendingCalls.length) resolveCalls();
     else advanceTurn();
     return;
   }
 
   showCallPanel(candidate.playerIndex, candidate.options);
+  haptic([16, 35, 16]);
   setStatus(`${player.name} may call`, `Claim ${tileText(state.lastDiscard.tile)} or pass.`);
 }
 
@@ -292,6 +319,7 @@ function showCallPanel(playerIndex, options) {
     button.type = "button";
     button.textContent = `${option.label}?`;
     button.addEventListener("click", () => {
+      haptic(option.type === "win" ? [30, 40, 50] : 18);
       if (online.enabled) postAction({ type: "call", callIndex: optionIndex });
       else takeCall(playerIndex, option);
     });
@@ -309,13 +337,20 @@ function showCallPanel(playerIndex, options) {
 
 function passCall() {
   if (online.enabled) {
+    haptic(8);
     postAction({ type: "pass" });
     return;
   }
   if (state.pendingCalls.length === 0) return;
+  haptic(8);
   els.callPanel.classList.add("hidden");
   els.passButton.classList.add("hidden");
   state.pendingCalls.shift();
+  state.callStatus = state.pendingCalls[0] ? {
+    playerIndex: state.pendingCalls[0].playerIndex,
+    playerName: state.players[state.pendingCalls[0].playerIndex].name,
+    options: state.pendingCalls[0].options.map((option) => option.label),
+  } : null;
   if (state.pendingCalls.length > 0) {
     resolveCalls();
   } else {
@@ -350,6 +385,7 @@ function takeCall(playerIndex, option) {
   state.current = playerIndex;
   state.drawn = true;
   state.pendingCalls = [];
+  state.callStatus = null;
   sortHand(player.hand);
   log(`${player.name} calls ${option.type}.`);
   setStatus(`${player.name} called ${option.type}`, "That player must discard next.");
@@ -432,20 +468,26 @@ function chooseNpcDiscard(hand) {
 
 function declareWin() {
   if (online.enabled) {
+    haptic([30, 40, 50]);
     postAction({ type: "win" });
     return;
   }
   if (!humanCanAct()) return;
   const player = currentPlayer();
   if (isWinningHand(player.hand, player.melds.length)) {
+    haptic([30, 40, 50]);
     finishWin(state.current, `${player.name} wins by self-draw.`);
   } else {
+    haptic([8, 30, 8]);
     setStatus("Not a winning hand yet", "You need four melds and a pair, or seven pairs.");
   }
 }
 
 function finishWin(playerIndex, message) {
   state.gameOver = true;
+  state.pendingCalls = [];
+  state.callStatus = null;
+  haptic([40, 50, 80]);
   log(message);
   render();
   const overlay = document.createElement("div");
@@ -466,6 +508,9 @@ function finishWin(playerIndex, message) {
 
 function endDraw() {
   state.gameOver = true;
+  state.pendingCalls = [];
+  state.callStatus = null;
+  haptic([20, 40, 20]);
   setStatus("Exhaustive draw", "The wall is empty. Start a new hand.");
   log("The hand ends in a draw.");
   render();
@@ -567,6 +612,8 @@ function render() {
     } else {
       setStatus(`${currentPlayer().name} is thinking`, "The NPC will draw and discard automatically.");
     }
+  } else if (!state.gameOver && state.callStatus) {
+    setStatus("Someone is thinking", `${state.callStatus.playerName} is considering ${formatCallOptions(state.callStatus.options)}.`);
   }
 }
 
@@ -591,7 +638,7 @@ function renderHand(player, playerIndex, visualIndex) {
   const container = document.querySelector(`#hand-${visualIndex}`);
   container.innerHTML = "";
   const activeHumanIndex = state.pendingCalls.length > 0 ? state.pendingCalls[0].playerIndex : state.current;
-  const hidden = online.enabled ? playerIndex !== online.seat : (!player.human || (player.human && playerIndex !== activeHumanIndex));
+  const hidden = state.gameOver ? false : (online.enabled ? playerIndex !== online.seat : (!player.human || (player.human && playerIndex !== activeHumanIndex)));
   player.hand.forEach((tile, index) => {
     const tileEl = hidden || tile === null ? createTileBack() : createTile(tile);
     tileEl.classList.toggle("selectable", playerIndex === state.current && player.human && state.drawn && (!online.enabled || playerIndex === online.seat));
@@ -686,6 +733,14 @@ function setStatus(title, text) {
   els.statusText.textContent = text;
 }
 
+function formatCallOptions(options) {
+  if (!options || options.length === 0) return "a call";
+  const simpleOptions = [...new Set(options.map((label) => label.split(" ")[0].toLowerCase()))];
+  if (simpleOptions.length === 1) return simpleOptions[0];
+  if (simpleOptions.length === 2) return `${simpleOptions[0]} or ${simpleOptions[1]}`;
+  return `${simpleOptions.slice(0, -1).join(", ")}, or ${simpleOptions.at(-1)}`;
+}
+
 function log(message) {
   const item = document.createElement("li");
   item.textContent = message;
@@ -776,6 +831,7 @@ function applySnapshot(snapshot) {
   state.drawn = snapshot.drawn;
   state.lastDiscard = snapshot.lastDiscard;
   state.pendingCalls = snapshot.pendingCall ? [snapshot.pendingCall] : [];
+  state.callStatus = snapshot.callStatus;
   state.gameOver = snapshot.gameOver;
   els.callPanel.classList.add("hidden");
   els.passButton.classList.add("hidden");
@@ -789,19 +845,33 @@ function applySnapshot(snapshot) {
   if (snapshot.pendingCall && !snapshot.gameOver) {
     showCallPanel(snapshot.pendingCall.playerIndex, snapshot.pendingCall.options);
     setStatus(`${snapshot.players[snapshot.pendingCall.playerIndex].name} may call`, `Claim ${tileText(snapshot.lastDiscard.tile)} or pass.`);
+    const callKey = `${snapshot.version}:${snapshot.pendingCall.playerIndex}:${snapshot.lastDiscard?.tile || ""}`;
+    if (online.lastPendingCallKey !== callKey) {
+      haptic([16, 35, 16]);
+      online.lastPendingCallKey = callKey;
+    }
+  } else if (snapshot.callStatus && !snapshot.gameOver) {
+    setStatus("Someone is thinking", `${snapshot.callStatus.playerName} is considering ${formatCallOptions(snapshot.callStatus.options)}.`);
+    online.lastPendingCallKey = null;
+  } else {
+    online.lastPendingCallKey = null;
   }
   if (snapshot.gameOver && snapshot.winner) {
     els.callPanel.classList.add("hidden");
     els.passButton.classList.add("hidden");
     state.pendingCalls = [];
+    state.callStatus = null;
     setStatus("Hand ended", snapshot.winner.message);
+    if (!online.lastGameOver) haptic([40, 50, 80]);
   }
+  online.lastGameOver = snapshot.gameOver;
 }
 
 els.drawButton.addEventListener("click", drawForCurrent);
 els.winButton.addEventListener("click", declareWin);
 els.passButton.addEventListener("click", passCall);
 els.newGameButton.addEventListener("click", () => {
+  haptic(18);
   if (online.enabled) postAction({ type: "newGame" });
   else startGame();
 });

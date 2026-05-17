@@ -103,10 +103,10 @@ function addLog(room, message) {
 }
 
 function applyAction(room, seat, action) {
-  if (room.gameOver) return;
   if (action.type === "newGame") {
     return resetRoom(room);
   }
+  if (room.gameOver) return;
   if (action.type === "pass") {
     const call = room.pendingCalls[0];
     if (call && call.playerIndex === seat) passCall(room);
@@ -405,6 +405,11 @@ function snapshot(room, seat) {
     drawn: room.drawn,
     lastDiscard: room.lastDiscard,
     pendingCall: pendingCall && pendingCall.playerIndex === seat ? pendingCall : null,
+    callStatus: pendingCall ? {
+      playerIndex: pendingCall.playerIndex,
+      playerName: room.players[pendingCall.playerIndex].name,
+      options: pendingCall.options.map((option) => option.label),
+    } : null,
     wallCount: room.wall.length,
     gameOver: room.gameOver,
     winner: room.winner,
@@ -415,7 +420,7 @@ function snapshot(room, seat) {
       human: player.human,
       melds: player.melds,
       discards: player.discards,
-      hand: index === seat ? player.hand : Array.from({ length: player.hand.length }, () => null),
+      hand: room.gameOver || index === seat ? player.hand : Array.from({ length: player.hand.length }, () => null),
     })),
   };
 }
