@@ -219,11 +219,11 @@ small,
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
   width: max-content;
-  max-width: min(100%, 170px);
+  max-width: min(100%, 150px);
   margin: 0;
-  padding: 8px 10px;
+  padding: 6px 8px;
   border: 1px solid rgba(240, 189, 85, 0.48);
   border-radius: 8px;
   background: rgba(13, 20, 16, 0.88);
@@ -232,7 +232,7 @@ small,
 
 .seat-east .seat-header {
   left: 50%;
-  top: 16px;
+  bottom: 116px;
   transform: translateX(-50%);
 }
 
@@ -242,7 +242,7 @@ small,
 
 .seat-north .seat-header {
   left: 50%;
-  bottom: 6px;
+  top: 50px;
   transform: translateX(-50%);
 }
 
@@ -269,12 +269,12 @@ small,
 }
 
 .seat-west .seat-header {
-  right: -1px;
+  left: 0;
   transform: translateY(-50%);
 }
 
 .seat-south .seat-header {
-  left: -1px;
+  right: 0;
   transform: translateY(-50%);
 }
 
@@ -316,9 +316,9 @@ small,
 .wind {
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
-  flex: 0 0 34px;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
   border-radius: 50%;
   background: #151611;
   color: var(--gold);
