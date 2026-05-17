@@ -213,8 +213,10 @@ small,
 
 .seat-south,
 .seat-west {
+  z-index: 2;
   justify-content: center;
   padding: 12px;
+  overflow: visible;
 }
 
 .seat-west .seat-header,
@@ -249,18 +251,16 @@ small,
 
 .center-board {
   grid-area: center;
+  z-index: 1;
   display: grid;
   place-items: center;
   position: relative;
   min-height: 0;
   aspect-ratio: 1;
-  border: 12px solid rgba(12, 32, 26, 0.78);
-  border-radius: 50%;
-  background:
-    conic-gradient(from 45deg, rgba(255, 255, 255, 0.1), transparent 25%, rgba(255, 255, 255, 0.1) 25%, transparent 50%, rgba(255, 255, 255, 0.1) 50%, transparent 75%, rgba(255, 255, 255, 0.1) 75%, transparent),
-    radial-gradient(circle, rgba(255, 255, 255, 0.08), transparent 45%),
-    rgba(3, 36, 32, 0.42);
-  box-shadow: inset 0 0 0 1px rgba(240, 189, 85, 0.22), inset 0 0 48px rgba(0, 0, 0, 0.28);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .status-card {
@@ -348,22 +348,104 @@ small,
 .seat-south .discard-row,
 .seat-west .meld-row,
 .seat-south .meld-row {
-  max-width: 62px;
+  position: absolute;
+  width: 92px;
+  max-width: none;
   gap: 4px;
 }
 
 .seat-west .compact-hand,
 .seat-west .discard-row,
 .seat-west .meld-row {
-  margin-left: auto;
-  margin-right: 12px;
+  left: 52px;
+  margin: 0;
+  justify-content: center;
 }
 
 .seat-south .compact-hand,
 .seat-south .discard-row,
 .seat-south .meld-row {
-  margin-left: 12px;
-  margin-right: auto;
+  right: 52px;
+  margin: 0;
+  justify-content: center;
+}
+
+.seat-west .compact-hand,
+.seat-south .compact-hand {
+  display: block;
+  width: 96px;
+  height: 382px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.seat-west .meld-row,
+.seat-south .meld-row {
+  top: calc(50% - 58px);
+}
+
+.seat-west .discard-row,
+.seat-south .discard-row {
+  top: calc(50% + 58px);
+}
+
+.seat-west .compact-hand .tile,
+.seat-south .compact-hand .tile {
+  position: absolute;
+  width: 44px;
+  height: 32px;
+  padding: 3px 4px 5px;
+}
+
+.seat-west .compact-hand .tile:nth-child(-n+11) {
+  left: 0;
+}
+
+.seat-south .compact-hand .tile:nth-child(-n+11) {
+  right: 0;
+}
+
+.seat-west .compact-hand .tile:nth-child(n+12) {
+  right: 0;
+}
+
+.seat-south .compact-hand .tile:nth-child(n+12) {
+  left: 0;
+}
+
+.seat-west .compact-hand .tile:nth-child(1),
+.seat-south .compact-hand .tile:nth-child(1) { top: 0; }
+.seat-west .compact-hand .tile:nth-child(2),
+.seat-south .compact-hand .tile:nth-child(2) { top: 35px; }
+.seat-west .compact-hand .tile:nth-child(3),
+.seat-south .compact-hand .tile:nth-child(3) { top: 70px; }
+.seat-west .compact-hand .tile:nth-child(4),
+.seat-south .compact-hand .tile:nth-child(4) { top: 105px; }
+.seat-west .compact-hand .tile:nth-child(5),
+.seat-south .compact-hand .tile:nth-child(5) { top: 140px; }
+.seat-west .compact-hand .tile:nth-child(6),
+.seat-south .compact-hand .tile:nth-child(6) { top: 175px; }
+.seat-west .compact-hand .tile:nth-child(7),
+.seat-south .compact-hand .tile:nth-child(7) { top: 210px; }
+.seat-west .compact-hand .tile:nth-child(8),
+.seat-south .compact-hand .tile:nth-child(8) { top: 245px; }
+.seat-west .compact-hand .tile:nth-child(9),
+.seat-south .compact-hand .tile:nth-child(9) { top: 280px; }
+.seat-west .compact-hand .tile:nth-child(10),
+.seat-south .compact-hand .tile:nth-child(10) { top: 315px; }
+.seat-west .compact-hand .tile:nth-child(11),
+.seat-south .compact-hand .tile:nth-child(11) { top: 350px; }
+.seat-west .compact-hand .tile:nth-child(12),
+.seat-south .compact-hand .tile:nth-child(12) { top: 174px; }
+.seat-west .compact-hand .tile:nth-child(13),
+.seat-south .compact-hand .tile:nth-child(13) { top: 209px; }
+.seat-west .compact-hand .tile:nth-child(14),
+.seat-south .compact-hand .tile:nth-child(14) { top: 244px; }
+
+.seat-west .compact-hand .tile.back,
+.seat-south .compact-hand .tile.back {
+  width: 44px;
+  height: 32px;
 }
 
 .seat-east .hand-row {
