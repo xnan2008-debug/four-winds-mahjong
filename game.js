@@ -786,11 +786,14 @@ function applySnapshot(snapshot) {
     item.textContent = message;
     els.logList.append(item);
   });
-  if (snapshot.pendingCall) {
+  if (snapshot.pendingCall && !snapshot.gameOver) {
     showCallPanel(snapshot.pendingCall.playerIndex, snapshot.pendingCall.options);
     setStatus(`${snapshot.players[snapshot.pendingCall.playerIndex].name} may call`, `Claim ${tileText(snapshot.lastDiscard.tile)} or pass.`);
   }
   if (snapshot.gameOver && snapshot.winner) {
+    els.callPanel.classList.add("hidden");
+    els.passButton.classList.add("hidden");
+    state.pendingCalls = [];
     setStatus("Hand ended", snapshot.winner.message);
   }
 }

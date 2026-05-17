@@ -295,6 +295,7 @@ function declareWin(room, seat) {
 
 function finishWin(room, playerIndex, message) {
   room.gameOver = true;
+  room.pendingCalls = [];
   room.winner = { playerIndex, message };
   addLog(room, message);
 }
@@ -396,7 +397,7 @@ function tileShort(tileId) {
 }
 
 function snapshot(room, seat) {
-  const pendingCall = room.pendingCalls[0];
+  const pendingCall = room.gameOver ? null : room.pendingCalls[0];
   return {
     id: room.id,
     version: room.version,
